@@ -7,14 +7,14 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QListWidgetItem
+from PyQt5.QtGui import QIcon
+
+from Model import Message
 from Controller import ChatController
 
 
 class Ui_Form(object):
-
-    def fuck(self):
-        print(self.contactList.itemClicked)
-
     def __init__(self, Form):
         self.textEdit = QtWidgets.QTextEdit(Form)
         self.conversationList = QtWidgets.QListWidget(Form)
@@ -24,13 +24,13 @@ class Ui_Form(object):
         self.contactList = QtWidgets.QListWidget(Form)
         self.setupUi(Form)
         self.controller = ChatController(self)
-        self.contactList.itemClicked.connect(self.fuck)
+        self.contactList.itemClicked.connect(self.change_contact)
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(875, 665)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icon/telegram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../assets/icon/telegram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Form.setWindowIcon(icon)
         self.textEdit.setGeometry(QtCore.QRect(260, 460, 611, 161))
         self.textEdit.setObjectName("textEdit")
@@ -42,6 +42,7 @@ class Ui_Form(object):
         self.deleteButton.setObjectName("deleteButton")
         self.sendButton.setGeometry(QtCore.QRect(790, 630, 75, 23))
         self.sendButton.setObjectName("sendButton")
+        self.sendButton.clicked.connect(self.send_message)
         self.contactList.setGeometry(QtCore.QRect(10, 10, 241, 611))
         self.contactList.setObjectName("contactList")
 
@@ -56,4 +57,14 @@ class Ui_Form(object):
         self.deleteButton.setText(_translate("Form", "Delete"))
         self.sendButton.setText(_translate("Form", "Send"))
 
+    def send_message(self):
+        content = self.textEdit.toPlainText()
+        self.controller.messages[self.controller.current_user.username].append(Message("Ritsuka", content))
+        item = QListWidgetItem(QIcon('../assets/icon/Ritsuka.jpg'), content)
+        self.conversationList.addItem(item)
+        self.textEdit.clear()
 
+    def change_contact(self, item):
+        self.conversationList.clear()
+        self.controller.get_messages(item.text())
+        self.controller.current_user = self.controller.get_user_by_name(item.text())

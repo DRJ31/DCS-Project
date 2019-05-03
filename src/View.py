@@ -36,6 +36,7 @@ class Ui_Form(object):
         self.textEdit.setObjectName("textEdit")
         self.conversationList.setGeometry(QtCore.QRect(260, 10, 611, 441))
         self.conversationList.setObjectName("conversationList")
+        self.conversationList.setWordWrap(True)
         self.newButton.setGeometry(QtCore.QRect(10, 630, 75, 23))
         self.newButton.setObjectName("newButton")
         self.deleteButton.setGeometry(QtCore.QRect(100, 630, 75, 23))
@@ -45,6 +46,7 @@ class Ui_Form(object):
         self.sendButton.clicked.connect(self.send_message)
         self.contactList.setGeometry(QtCore.QRect(10, 10, 241, 611))
         self.contactList.setObjectName("contactList")
+        self.contactList.setWordWrap(True)
 
 
         self.retranslateUi(Form)

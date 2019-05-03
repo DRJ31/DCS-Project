@@ -26,9 +26,9 @@ class ChatController:
     def init_contacts(self):
         for contact in self.contacts:
             if contact.has_avatar:
-                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % contact.username), contact.username)
+                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % contact.username), contact.username + "\n" + contact.ip_addr)
             else:
-                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), contact.username)
+                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), contact.username + "\n" + contact.ip_addr)
             self.view.contactList.addItem(item)
         self.view.contactList.setIconSize(QSize(25, 25))
 

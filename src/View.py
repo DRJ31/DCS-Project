@@ -85,3 +85,4 @@ class Ui_Form(object):
             if item.text() != self.controller.myself.username:
                 self.contactList.takeItem(self.contactList.row(item))
                 self.controller.delete_contact(item.text())
+                self.change_contact(self.contactList.selectedItems()[0])

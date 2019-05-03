@@ -25,6 +25,8 @@ class Ui_Form(object):
         self.setupUi(Form)
         self.controller = ChatController(self)
         self.contactList.itemClicked.connect(self.change_contact)
+        if not self.controller.current_user:
+            self.sendButton.setDisabled(True)
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
@@ -41,6 +43,7 @@ class Ui_Form(object):
         self.newButton.setObjectName("newButton")
         self.deleteButton.setGeometry(QtCore.QRect(100, 630, 75, 23))
         self.deleteButton.setObjectName("deleteButton")
+        self.deleteButton.clicked.connect(self.delete_contact)
         self.sendButton.setGeometry(QtCore.QRect(790, 630, 75, 23))
         self.sendButton.setObjectName("sendButton")
         self.sendButton.clicked.connect(self.send_message)
@@ -61,12 +64,24 @@ class Ui_Form(object):
 
     def send_message(self):
         content = self.textEdit.toPlainText()
-        self.controller.messages[self.controller.current_user.username].append(Message("Ritsuka", content))
-        item = QListWidgetItem(QIcon('../assets/icon/Ritsuka.jpg'), content)
+        myself = self.controller.myself
+        self.controller.messages[self.controller.current_user.username].append(Message(myself.username, content))
+        if myself.has_avatar:
+            item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % myself.username), content)
+        else:
+            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), content)
         self.conversationList.addItem(item)
         self.textEdit.clear()
 
     def change_contact(self, item):
+        self.sendButton.setDisabled(False)
         self.conversationList.clear()
         self.controller.get_messages(item.text())
         self.controller.current_user = self.controller.get_user_by_name(item.text())
+
+    def delete_contact(self):
+        items = self.contactList.selectedItems()
+        for item in items:
+            if item.text() != self.controller.myself.username:
+                self.contactList.takeItem(self.contactList.row(item))
+                self.controller.delete_contact(item.text())

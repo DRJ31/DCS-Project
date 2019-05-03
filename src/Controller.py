@@ -8,14 +8,15 @@ from Model import Message, Contact
 class ChatController:
     messages = {}
     contacts = [
-        Contact("Nyaruko", "192.168.1.123"),
-        Contact("Ritsuka", "192.168.1.122")
+        Contact("Nyaruko", "192.168.1.123", True),
+        Contact("Ritsuka", "192.168.1.122", False),
+        Contact("KizunaAI", "192.168.1.120", True)
     ]
     test_arr = [
-        Message("Nyaruko", "Hello, master!"),
-        Message("Ritsuka", "Hello, Nyaruko!")
+        Message("Nyaruko", "真尋さん大好き！"),
     ]
     current_user = None
+    myself = contacts[2]
 
     def __init__(self, ChatView):
         self.view = ChatView
@@ -24,7 +25,10 @@ class ChatController:
 
     def init_contacts(self):
         for contact in self.contacts:
-            item = QListWidgetItem(QIcon('../assets/icon/%s.jpg' % contact.username), contact.username)
+            if contact.has_avatar:
+                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % contact.username), contact.username)
+            else:
+                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), contact.username)
             self.view.contactList.addItem(item)
         self.view.contactList.setIconSize(QSize(25, 25))
 
@@ -37,7 +41,10 @@ class ChatController:
 
     def get_messages(self, contact):
         for message in self.messages[contact]:
-            item = QListWidgetItem(QIcon('../assets/icon/%s.jpg' % message.username), message.content)
+            if self.get_user_by_name(message.username).has_avatar:
+                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % message.username), message.content)
+            else:
+                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), message.content)
             self.view.conversationList.addItem(item)
         self.view.conversationList.setIconSize(QSize(25, 25))
 
@@ -46,3 +53,8 @@ class ChatController:
             if contact.username == username:
                 return contact
 
+    def delete_contact(self, username):
+        del self.messages[username]
+        for contact in self.contacts:
+            if contact.username == username:
+                del contact

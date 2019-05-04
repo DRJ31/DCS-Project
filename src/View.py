@@ -133,10 +133,15 @@ class Ui_Form(object):
     def delete_contact(self):
         items = self.contactList.selectedItems()
         for item in items:
-            if self.get_username(item.text()) != self.controller.myself.username:
-                self.contactList.takeItem(self.contactList.row(item))
-                self.controller.delete_contact(self.get_username(item.text()))
-                self.change_contact(self.contactList.selectedItems()[0])
+            username = self.get_username(item.text())
+            if username != self.controller.myself.username:
+                result = QMessageBox.warning(QMessageBox(), 'Are you sure?',
+                                             'You will permanently delete all the records with %s.' % username,
+                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if result == QMessageBox.Yes:
+                    self.contactList.takeItem(self.contactList.row(item))
+                    self.controller.delete_contact(self.get_username(item.text()))
+                    self.change_contact(self.contactList.selectedItems()[0])
 
     def get_username(self, text):
         return text.split('\n')[0]

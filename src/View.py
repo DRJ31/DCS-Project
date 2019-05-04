@@ -7,11 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QListWidgetItem, QDialog, QMessageBox, QWidget
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import pyqtSignal, Qt, QSize
+from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtCore import pyqtSignal, Qt
 
-from Model import Message, Contact
 from Controller import ChatController
 
 
@@ -52,12 +50,7 @@ class Ui_Form(object):
             self.sendButton.setDisabled(True)
 
     def init_avatar(self):
-        myself = self.controller.myself
-        if myself.has_avatar:
-            pix = QPixmap('../assets/avatar/%s.jpg' % self.controller.myself.username)
-        else:
-            pix = QPixmap('../assets/avatar/default.jpg')
-        pix = pix.scaled(40, 40)
+        pix = self.controller.get_avatar()
         self.avatarLabel.setPixmap(pix)
 
     def setupUi(self, Form):
@@ -70,7 +63,7 @@ class Ui_Form(object):
         # Setup text editor
         self.textEdit.setGeometry(QtCore.QRect(260, 460, 611, 161))
         self.textEdit.setObjectName("textEdit")
-        self.textEdit.returnPressed.connect(self.send_message)
+        self.textEdit.returnPressed.connect(self.controller.send_message)
         # Setup conversation interface
         self.conversationList.setGeometry(QtCore.QRect(260, 10, 611, 441))
         self.conversationList.setObjectName("conversationList")
@@ -82,16 +75,16 @@ class Ui_Form(object):
         # Setup Delete button
         self.deleteButton.setGeometry(QtCore.QRect(100, 630, 75, 23))
         self.deleteButton.setObjectName("deleteButton")
-        self.deleteButton.clicked.connect(self.delete_contact)
+        self.deleteButton.clicked.connect(self.controller.delete_contact)
         # Setup Send button
         self.sendButton.setGeometry(QtCore.QRect(790, 630, 75, 23))
         self.sendButton.setObjectName("sendButton")
-        self.sendButton.clicked.connect(self.send_message)
+        self.sendButton.clicked.connect(self.controller.send_message)
         # Setup Contact List
         self.contactList.setGeometry(QtCore.QRect(10, 70, 241, 551))
         self.contactList.setObjectName("contactList")
         self.contactList.setWordWrap(True)
-        self.contactList.itemClicked.connect(self.change_contact)
+        self.contactList.itemClicked.connect(self.controller.change_contact)
         # Setup avartar label
         self.avatarLabel.setGeometry(QtCore.QRect(10, 10, 61, 51))
         self.init_avatar()
@@ -113,43 +106,10 @@ class Ui_Form(object):
         self.deleteButton.setText(_translate("Form", "Delete"))
         self.sendButton.setText(_translate("Form", "Send"))
 
-    def send_message(self):
-        content = self.textEdit.toPlainText()
-        myself = self.controller.myself
-        self.controller.messages[self.controller.current_user.username].append(Message(myself.username, content))
-        if myself.has_avatar:
-            item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % myself.username), content)
-        else:
-            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), content)
-        self.conversationList.addItem(item)
-        self.textEdit.clear()
-
-    def change_contact(self, item):
-        self.sendButton.setDisabled(False)
-        self.conversationList.clear()
-        self.controller.get_messages(self.get_username(item.text()))
-        self.controller.current_user = self.controller.get_user_by_name(self.get_username(item.text()))
-
-    def delete_contact(self):
-        items = self.contactList.selectedItems()
-        for item in items:
-            username = self.get_username(item.text())
-            if username != self.controller.myself.username:
-                result = QMessageBox.warning(QMessageBox(), 'Are you sure?',
-                                             'You will permanently delete all the records with %s.' % username,
-                                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if result == QMessageBox.Yes:
-                    self.contactList.takeItem(self.contactList.row(item))
-                    self.controller.delete_contact(self.get_username(item.text()))
-                    self.change_contact(self.contactList.selectedItems()[0])
-
-    def get_username(self, text):
-        return text.split('\n')[0]
-
     def add_contact(self):
         Dialog = QDialog()
         add_ui = Ui_Dialog(Dialog, self)
-        Dialog.exec_()
+        Dialog.exec()
 
 
 class Ui_Dialog(object):
@@ -211,8 +171,4 @@ class Ui_Dialog(object):
         elif not self.ipEdit.text():
             QMessageBox.warning(QMessageBox(), 'Warning', 'Please input IP address', QMessageBox.Ok, QMessageBox.Ok)
         else:
-            contact = Contact(self.usernameEdit.text(), self.ipEdit.text(), False)
-            self.parent.controller.contacts.append(contact)
-            self.parent.controller.messages[contact.username] = []
-            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), contact.username + '\n' + contact.ip_addr)
-            self.parent.contactList.addItem(item)
+            self.parent.controller.save_info(self.usernameEdit.text(), self.ipEdit.text())

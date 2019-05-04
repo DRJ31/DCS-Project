@@ -28,7 +28,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         def get_msg(self):
             return self.buffer
 
-        def send_msg(self,msg):
+        def send_msg(self, msg):
             self.buffer = msg
             return True
 

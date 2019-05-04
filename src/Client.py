@@ -1,6 +1,6 @@
 import xmlrpc.client
 
-server = xmlrpc.client.ServerProxy('http://localhost:8000')
+server = xmlrpc.client.ServerProxy('http://192.168.1.100:8000')
 
 inputName = input("Please input your name: ")
 index, name = server.assign_name(inputName)

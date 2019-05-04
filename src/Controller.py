@@ -6,17 +6,18 @@ from Model import Message, Contact
 
 
 class ChatController:
-    messages = {}
-    contacts = [
+    messages = {}  # All the message records
+    contacts = [  # All the contacts
         Contact("Nyaruko", "192.168.1.123", True),
         Contact("Ritsuka", "192.168.1.122", False),
         Contact("KizunaAI", "192.168.1.120", True)
     ]
-    test_arr = [
-        Message("Nyaruko", "真尋さん大好き！"),
+    current_user = None  # Current user you are talking with
+    myself = contacts[2]  # Modify this as your account
+
+    test_arr = [  # Just for test
+        Message("Nyaruko", "真尋さん大好き！")
     ]
-    current_user = None
-    myself = contacts[2]
 
     def __init__(self, ChatView):
         self.view = ChatView

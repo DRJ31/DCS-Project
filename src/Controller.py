@@ -1,8 +1,31 @@
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QListWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog
 
-from Model import Message, Contact
+from View import Ui_Add
+
+
+class AddContactController:
+    def __init__(self, parent, view, model):
+        dialog = QDialog()
+        self.parent = parent
+        self.view = view
+        self.model = model
+        self.view.buttonBox.accepted.connect(self.save_info)
+        self.view.buttonBox.rejected.connect(self.view.parent.reject)
+
+    def save_info(self):
+        if not self.view.usernameEdit.text():
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input username', QMessageBox.Ok, QMessageBox.Ok)
+        elif not self.view.ipEdit.text():
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input IP address', QMessageBox.Ok, QMessageBox.Ok)
+        else:
+            username = self.view.usernameEdit.text()
+            ip_addr = self.view.ipEdit.text()
+            self.model.add_contact(username, ip_addr)
+            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), username + '\n' + ip_addr)
+            self.parent.view.contactList.addItem(item)
+            self.view.parent.accept()
 
 
 class ChatController:
@@ -10,14 +33,30 @@ class ChatController:
     def __init__(self, view, model):
         self.view = view
         self.model = model
-        self.init_contacts()
+        self.init_view()
 
     @staticmethod
     def get_username(text):
         return text.split('\n')[0]
 
+    def init_view(self):
+        self.init_contacts()
+        self.view.sendButton.setDisabled(True)
+        self.init_avatar()
+        self.view.usernameLabel.setText(self.model.myself.username)
+        self.setup_view_action()
+
+    def init_avatar(self):
+        pix = self.get_avatar()
+        self.view.avatarLabel.setPixmap(pix)
+
     def setup_view_action(self):
         view = self.view
+        view.textEdit.returnPressed.connect(self.send_message)
+        view.deleteButton.clicked.connect(self.delete_contact)
+        view.sendButton.clicked.connect(self.send_message)
+        view.contactList.itemClicked.connect(self.change_contact)
+        view.newButton.clicked.connect(self.add_contact)
 
     def init_contacts(self):
         for contact in self.model.contacts:
@@ -50,11 +89,6 @@ class ChatController:
                     self.change_contact(self.view.contactList.selectedItems()[0])
                     self.model.delete_contact(username)
 
-    def save_info(self, username, ip_addr):
-        self.model.add_contact(username, ip_addr)
-        item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), username + '\n' + ip_addr)
-        self.view.contactList.addItem(item)
-
     def change_contact(self, item):
         username = self.get_username(item.text())
         self.view.sendButton.setDisabled(False)
@@ -78,3 +112,9 @@ class ChatController:
             item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), content)
         self.view.conversationList.addItem(item)
         self.view.textEdit.clear()
+
+    def add_contact(self):
+        dialog = QDialog()
+        view = Ui_Add(dialog)
+        controller_add = AddContactController(self, view, self.model)
+        dialog.exec()

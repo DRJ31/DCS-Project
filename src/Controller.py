@@ -7,7 +7,6 @@ from View import Ui_Add
 
 class AddContactController:
     def __init__(self, parent, view, model):
-        dialog = QDialog()
         self.parent = parent
         self.view = view
         self.model = model

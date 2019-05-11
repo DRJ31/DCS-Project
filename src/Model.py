@@ -1,3 +1,6 @@
+import socket
+
+
 class Message:
     def __init__(self, username, content):
         self.username = username
@@ -9,6 +12,11 @@ class Contact:
         self.username = username
         self.ip_addr = ip_addr
         self.has_avatar = has_avatar
+
+    @staticmethod
+    def get_ip_addr():
+        myname = socket.getfqdn(socket.gethostname())
+        return socket.gethostbyname(myname)
 
 
 class Model:

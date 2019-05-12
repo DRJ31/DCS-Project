@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'chat.ui'
-#
-# Created by: PyQt5 UI code generator 5.12.1
-#
-# WARNING! All changes made in this file will be lost!
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt
 
@@ -142,6 +134,7 @@ class Ui_Add(object):
 
 
 class Ui_Login(object):
+
     def __init__(self, Dialog):
         self.parent = Dialog
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
@@ -156,10 +149,12 @@ class Ui_Login(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(400, 300)
+        # Setup buttonBox
         self.buttonBox.setGeometry(QtCore.QRect(30, 230, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
+        # Setup layout
         self.formLayoutWidget.setGeometry(QtCore.QRect(9, 9, 381, 191))
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout.setContentsMargins(0, 0, 0, 0)
@@ -182,6 +177,6 @@ class Ui_Login(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Login"))
         self.passwordLabel.setText(_translate("Dialog", "Password"))
         self.usernameLabel.setText(_translate("Dialog", "Username"))

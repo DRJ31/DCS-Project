@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog, QMainWindow
+from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog
 import socket
 
 from View import Ui_Add
@@ -14,7 +14,7 @@ class LoginController:
         self.view.buttonBox.accepted.connect(self.login)
         self.view.buttonBox.rejected.connect(self.view.parent.reject)
 
-    def login(self):
+    def login(self):  # Action when click Login
         ip_addr = socket.gethostbyname(socket.gethostname())
         username = self.view.usernameEdit.text()
         myself = Contact(username, ip_addr, False)
@@ -56,26 +56,10 @@ class ChatController:
     def get_username(text):
         return text.split('\n')[0]
 
-    def init_user(self):
-        self.view.usernameLabel.setText(self.model.myself.username)
-        self.init_avatar()
-
     def init_view(self):
         self.init_contacts()
         self.view.sendButton.setDisabled(True)
         self.setup_view_action()
-
-    def init_avatar(self):
-        pix = self.get_avatar()
-        self.view.avatarLabel.setPixmap(pix)
-
-    def setup_view_action(self):
-        view = self.view
-        view.textEdit.returnPressed.connect(self.send_message)
-        view.deleteButton.clicked.connect(self.delete_contact)
-        view.sendButton.clicked.connect(self.send_message)
-        view.contactList.itemClicked.connect(self.change_contact)
-        view.newButton.clicked.connect(self.add_contact)
 
     def init_contacts(self):
         for contact in self.model.contacts:
@@ -86,16 +70,29 @@ class ChatController:
             self.view.contactList.addItem(item)
         self.view.contactList.setIconSize(QSize(25, 25))
 
-    def get_messages(self, username):
-        for message in self.model.messages[username]:
-            if self.model.get_user_by_name(message.username).has_avatar:
-                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % message.username), message.content)
-            else:
-                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), message.content)
-            self.view.conversationList.addItem(item)
-        self.view.conversationList.setIconSize(QSize(25, 25))
+    def setup_view_action(self):
+        view = self.view
+        view.textEdit.returnPressed.connect(self.send_message)
+        view.deleteButton.clicked.connect(self.delete_contact)
+        view.sendButton.clicked.connect(self.send_message)
+        view.contactList.itemClicked.connect(self.change_contact)
+        view.newButton.clicked.connect(self.add_contact)
 
-    def delete_contact(self):
+    def init_user(self):
+        self.view.usernameLabel.setText(self.model.myself.username)
+        self.init_avatar()
+
+    def init_avatar(self):
+        pix = self.get_avatar()
+        self.view.avatarLabel.setPixmap(pix)
+
+    def get_avatar(self):
+        myself = self.model.myself
+        if myself.has_avatar:
+            return QPixmap('../assets/avatar/%s.jpg' % myself.username).scaled(40, 40)
+        return QPixmap('../assets/avatar/default.jpg').scaled(40, 40)
+
+    def delete_contact(self):  # Action when delete button pressed
         items = self.view.contactList.selectedItems()
         for item in items:
             username = self.get_username(item.text())
@@ -108,7 +105,7 @@ class ChatController:
                     self.change_contact(self.view.contactList.selectedItems()[0])
                     self.model.delete_contact(username)
 
-    def change_contact(self, item):
+    def change_contact(self, item):  # Action when click corresponding user
         username = self.get_username(item.text())
         print(username)
         self.view.sendButton.setDisabled(False)
@@ -116,11 +113,14 @@ class ChatController:
         self.get_messages(username)
         self.model.change_contact(username)
 
-    def get_avatar(self):
-        myself = self.model.myself
-        if myself.has_avatar:
-            return QPixmap('../assets/avatar/%s.jpg' % myself.username).scaled(40, 40)
-        return QPixmap('../assets/avatar/default.jpg').scaled(40, 40)
+    def get_messages(self, username):  # Get messages of current user
+        for message in self.model.messages[username]:
+            if self.model.get_user_by_name(message.username).has_avatar:
+                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % message.username), message.content)
+            else:
+                item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), message.content)
+            self.view.conversationList.addItem(item)
+        self.view.conversationList.setIconSize(QSize(25, 25))
 
     def send_message(self):
         content = self.view.textEdit.toPlainText()
@@ -133,7 +133,7 @@ class ChatController:
         self.view.conversationList.addItem(item)
         self.view.textEdit.clear()
 
-    def add_contact(self):
+    def add_contact(self):  # Pop out add contact window
         print("Shit")
         dialog = QDialog()
         view = Ui_Add(dialog)

@@ -2,8 +2,9 @@ import socket
 
 
 class Message:
-    def __init__(self, username, content):
-        self.username = username
+    def __init__(self, sender, receiver, content):
+        self.sender = sender
+        self.receiver = receiver
         self.content = content
 
 
@@ -21,19 +22,19 @@ class Contact:
 
 class Model:
     test_arr = [  # Just for test
-        Message("Nyaruko", "君の名前は？")
+        Message("Nyaruko", "Hello")
     ]
 
     def __init__(self):
         self.messages = {}  # All the message records
         self.contacts = [  # All the contacts
             Contact("Nyaruko", "192.168.1.123", True),
-            Contact("Ritsuka", "192.168.1.122", False),
             Contact("KizunaAI", "192.168.1.120", True)
         ]
         self.current_user = None  # Current user you are talking with
-        self.myself = self.contacts[2]  # Modify this as your account
+        self.myself = self.contacts[1]
         self.init_messages()
+        print(self.messages)
 
     def init_messages(self):
         for contact in self.contacts:

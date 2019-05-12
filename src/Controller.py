@@ -1,8 +1,26 @@
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog
+from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog, QMainWindow
+import socket
 
 from View import Ui_Add
+from Model import Contact
+
+
+class LoginController:
+    def __init__(self, view, model):
+        self.view = view
+        self.model = model
+        self.view.buttonBox.accepted.connect(self.login)
+        self.view.buttonBox.rejected.connect(self.view.parent.reject)
+
+    def login(self):
+        ip_addr = socket.gethostbyname(socket.gethostname())
+        username = self.view.usernameEdit.text()
+        myself = Contact(username, ip_addr, False)
+        self.model.contacts.append(myself)
+        self.model.myself = myself
+        self.view.parent.accept()
 
 
 class AddContactController:
@@ -38,11 +56,13 @@ class ChatController:
     def get_username(text):
         return text.split('\n')[0]
 
+    def init_user(self):
+        self.view.usernameLabel.setText(self.model.myself.username)
+        self.init_avatar()
+
     def init_view(self):
         self.init_contacts()
         self.view.sendButton.setDisabled(True)
-        self.init_avatar()
-        self.view.usernameLabel.setText(self.model.myself.username)
         self.setup_view_action()
 
     def init_avatar(self):
@@ -90,6 +110,7 @@ class ChatController:
 
     def change_contact(self, item):
         username = self.get_username(item.text())
+        print(username)
         self.view.sendButton.setDisabled(False)
         self.view.conversationList.clear()
         self.get_messages(username)
@@ -113,6 +134,7 @@ class ChatController:
         self.view.textEdit.clear()
 
     def add_contact(self):
+        print("Shit")
         dialog = QDialog()
         view = Ui_Add(dialog)
         controller_add = AddContactController(self, view, self.model)

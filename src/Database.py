@@ -22,3 +22,6 @@ class MySQL:
         finally:
             self.db.close()
             return result
+
+    def connect(self):
+        self.db = pymysql.connect("120.77.38.66", "distributed", "20190501", "chat")

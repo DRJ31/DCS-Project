@@ -19,6 +19,6 @@ class AddContactController:
             user_id = self.view.userIDEdit.text()
             username = self.view.usernameEdit.text()
             self.model.add_contact(int(user_id), username, 'default.jpg')
-            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), username)
+            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), username + " (" + str(user_id) + ")")
             self.parent.view.contactList.addItem(item)
             self.view.parent.accept()

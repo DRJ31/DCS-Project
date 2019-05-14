@@ -3,7 +3,6 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QSize
 
 import threading
-import time
 
 from .AddContactController import AddContactController
 from view import AddContactView
@@ -38,6 +37,10 @@ class ChatController:
         self.server = server
         self.msg_listener = None
 
+    @staticmethod
+    def get_username(string):
+        return " ".join(string.split(" ")[:-1])
+
     def init_view(self):
         self.init_contacts()
         self.view.sendButton.setDisabled(True)
@@ -47,7 +50,8 @@ class ChatController:
 
     def init_contacts(self):
         for contact in self.model.contacts:
-            item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']), contact['username'])
+            item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']),
+                                   contact['username'] + " (" + str(contact['user_id']) + ")")
             self.view.contactList.addItem(item)
             self.model.messages[contact['user_id']] = []
         self.view.contactList.setIconSize(QSize(25, 25))
@@ -75,7 +79,7 @@ class ChatController:
     def delete_contact(self):  # Action when delete button pressed
         items = self.view.contactList.selectedItems()
         for item in items:
-            username = item.text()
+            username = self.get_username(item.text())
             user_id = self.model.get_user_id_by_name(username)
             if username != self.model.myself['username']:
                 result = QMessageBox.warning(QMessageBox(), 'Are you sure?',
@@ -87,8 +91,9 @@ class ChatController:
                     self.model.delete_contact(user_id)
 
     def change_contact(self, item):  # Action when click corresponding user
-        username = item.text()
+        username = self.get_username(item.text())
         user_id = self.model.get_user_id_by_name(username)
+        print(user_id, self.model.contacts)
         self.view.sendButton.setDisabled(False)
         self.view.conversationList.clear()
         self.get_messages(user_id)
@@ -115,7 +120,8 @@ class ChatController:
                     'avatar': 'default.jpg'
                 }
                 self.model.contacts.append(contact)
-                item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']), contact['username'])
+                item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']),
+                                       contact['username'] + " (" + str(contact['user_id']) + ")")
                 self.view.contactList.addItem(item)
                 self.model.messages[user_id] = [message]
 

@@ -35,6 +35,7 @@ class LoginView(object):
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout.setItem(3, QtWidgets.QFormLayout.FieldRole, spacerItem)
         self.passwordEdit.setObjectName("passwordEdit")
+        self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.passwordEdit)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout.setItem(0, QtWidgets.QFormLayout.FieldRole, spacerItem1)

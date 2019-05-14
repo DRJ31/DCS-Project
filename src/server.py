@@ -1,7 +1,7 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 import queue
-from Model import Contact, Message
+from model import Contact, Message
 # Restrict to a particular path.
 
 
@@ -137,14 +137,12 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # return message from other user to user with user_id.
 
     def display_message(user_id):
+        message_list = []
         for user in server_data_container.user_list:
             if user['user_id'] == user_id:
-                
                 #Add other user's msg into message_list and return to client
-                message_list = []
                 while not user['message_queue'].empty():
                     message_list.append(user['message_queue'].get())
-
         return message_list
 
     # Score : public

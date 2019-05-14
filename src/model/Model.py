@@ -1,17 +1,3 @@
-class Message:
-    def __init__(self, sender, receiver, content):
-        self.sender = sender
-        self.receiver = receiver
-        self.content = content
-
-
-class Contact:
-    def __init__(self, user_id, username, avatar):
-        self.user_id = user_id
-        self.username = username
-        self.avatar = avatar
-
-
 class Model:
 
     def __init__(self):
@@ -20,6 +6,7 @@ class Model:
         self.current_user = None  # Current user you are talking with
         self.myself = None
 
+    # Initialize functions
     def init_self(self, user_list):
         self.myself = user_list[-1]
         self.contacts = user_list
@@ -28,6 +15,7 @@ class Model:
         for contact in self.contacts:
             self.messages[contact.user_id] = []
 
+    # Model changes in GUI actions
     def send_message(self, content):
         if self.myself['user_id'] != self.current_user['user_id']:
             self.messages[self.current_user['user_id']].append({
@@ -39,6 +27,22 @@ class Model:
     def change_contact(self, user_id):
         self.current_user = self.get_user_by_id(user_id)
 
+    def add_contact(self, user_id, username, avatar):
+        self.contacts.append({
+            'user_id': user_id,
+            'username': username,
+            'avatar': avatar
+        })
+        self.messages[int(user_id)] = []
+        print(self.contacts)
+
+    def delete_contact(self, user_id):
+        del self.messages[int(user_id)]
+        for contact in self.contacts:
+            if contact['user_id'] == user_id:
+                del contact
+
+    # Get information from model
     def get_user_by_id(self, user_id):
         for contact in self.contacts:
             if contact['user_id'] == user_id:
@@ -48,13 +52,3 @@ class Model:
         for contact in self.contacts:
             if contact['username'] == username:
                 return contact['user_id']
-
-    def add_contact(self, user_id, username, avatar):
-        self.contacts.append(Contact(user_id, username, avatar))
-        self.messages[user_id] = []
-
-    def delete_contact(self, user_id):
-        del self.messages[user_id]
-        for contact in self.contacts:
-            if contact.user_id == user_id:
-                del contact

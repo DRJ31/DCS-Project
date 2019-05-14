@@ -1,67 +1,12 @@
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QListWidgetItem, QMessageBox, QDialog
-import xmlrpc.client
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import QSize
 
-from View import Ui_Add
-from Model import Message
+import _thread
+import time
 
-
-class Client:
-    def __init__(self, username):
-        self.username = username
-        self.server = xmlrpc.client.ServerProxy('http://localhost:8000')
-        self.user_id = self.register()
-        self.user_list = self.server.get_online_users()
-
-    def register(self):
-
-        try:
-            user_id = self.server.regist_new_user(self.username)
-
-        except:
-            # TODO: Add an alert
-            user_id = 0
-        return user_id
-
-
-class LoginController:
-    def __init__(self, view, model):
-        self.view = view
-        self.model = model
-        self.server = None
-        self.client = None
-        self.view.buttonBox.accepted.connect(self.login)
-        self.view.buttonBox.rejected.connect(self.view.parent.reject)
-
-    def login(self):  # Action when click Login
-        username = self.view.userNameEdit.text()
-        self.client = Client(username)
-        self.server = self.client.server
-        self.model.init_self(self.client.user_list)
-        self.view.parent.accept()
-
-
-class AddContactController:
-    def __init__(self, parent, view, model):
-        self.parent = parent
-        self.view = view
-        self.model = model
-        self.view.buttonBox.accepted.connect(self.save_info)
-        self.view.buttonBox.rejected.connect(self.view.parent.reject)
-
-    def save_info(self):
-        if not self.view.userIDEdit.text():
-            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input user ID', QMessageBox.Ok, QMessageBox.Ok)
-        elif not self.view.usernameEdit.text():
-            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input username', QMessageBox.Ok, QMessageBox.Ok)
-        else:
-            username = self.view.userIDEdit.text()
-            ip_addr = self.view.usernameEdit.text()
-            self.model.add_contact(username, ip_addr)
-            item = QListWidgetItem(QIcon('../assets/avatar/default.jpg'), username)
-            self.parent.view.contactList.addItem(item)
-            self.view.parent.accept()
+from .AddContactController import AddContactController
+from view import AddContactView
 
 
 class ChatController:
@@ -79,6 +24,10 @@ class ChatController:
         self.init_contacts()
         self.view.sendButton.setDisabled(True)
         self.setup_view_action()
+        try:
+            _thread.start_new_thread(self.message_listener, (self.model.myself['user_id'], ))
+        except:
+            print("Could not start message listening thread")
 
     def init_contacts(self):
         for contact in self.model.contacts:
@@ -112,7 +61,7 @@ class ChatController:
         for item in items:
             username = self.get_username(item.text())
             user_id = self.model.get_user_id_by_name(username)
-            if username != self.model.myself.username:
+            if username != self.model.myself['username']:
                 result = QMessageBox.warning(QMessageBox(), 'Are you sure?',
                                              'You will permanently delete all the records with %s.' % username,
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -129,15 +78,30 @@ class ChatController:
         self.get_messages(user_id)
         self.model.change_contact(user_id)
 
+    def update_messages(self, user_id):
+        messages = self.server.display_message(user_id)
+        myself = self.model.myself
+        for message in messages:
+            current_user = self.model.current_user
+            if myself['user_id'] == message['sender']:
+                user_id = message['receiver']
+            else:
+                user_id = message['sender']
+            try:
+                self.model.messages[user_id].append(message)
+                self.model.contacts.append()
+            except:
+                self.model.messages[user_id] = [message]
+            if user_id == current_user['user_id']:
+                item = QListWidgetItem(QIcon('../assets/avatar/%s' % current_user['avatar']), message['content'])
+                self.view.conversationList.addItem(item)
+
     def get_messages(self, user_id):  # Get messages of current user
         # Init user information
         user = self.model.get_user_by_id(user_id)
         myself = self.model.myself
 
-        messages = self.server.display_message(user_id)
-        for message in messages:
-            self.model.messages[message['sender']].append(message)
-        message_list = self.model.messages[user_id]
+        message_list = self.model.messages[int(user_id)]
         for message in message_list:
             if message['sender'] == myself['user_id']:
                 item = QListWidgetItem(QIcon('../assets/avatar/%s' % myself['avatar']), message['content'])
@@ -147,6 +111,7 @@ class ChatController:
         self.view.conversationList.setIconSize(QSize(25, 25))
 
     def send_message(self):
+        print(self.model.messages)
         content = self.view.textEdit.toPlainText()
         myself = self.model.myself
         self.server.send_message(myself['user_id'], content, self.model.current_user['user_id'])
@@ -157,6 +122,11 @@ class ChatController:
 
     def add_contact(self):  # Pop out add contact window
         dialog = QDialog()
-        view = Ui_Add(dialog)
+        view = AddContactView(dialog)
         controller_add = AddContactController(self, view, self.model)
         dialog.exec()
+
+    def message_listener(self, user_id):
+        while True:
+            time.sleep(3)
+            self.update_messages(user_id)

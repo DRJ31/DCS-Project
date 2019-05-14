@@ -1,3 +1,5 @@
+from PyQt5.QtWidgets import QMessageBox
+
 from .Client import Client
 
 
@@ -12,6 +14,9 @@ class LoginController:
 
     def login(self):  # Action when click Login
         username = self.view.userNameEdit.text()
+        if not username:
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input your username!', QMessageBox.Ok, QMessageBox.Ok)
+            return
         self.client = Client(username)
         self.server = self.client.server
         self.model.init_self(self.client.user_list)

@@ -48,14 +48,20 @@ with SimpleXMLRPCServer(('localhost', 8000),
         print('New User : User id:', user_id, 'User Name:', user_name)
 
         return user_id
+
+    # Score: public
+    # get_username_by_id:
+    # Get username by user_id.
+    def get_username_by_id(user_id):
+        return server_data_container.user_list[user_id - 1]['user_name']
     
     # Score : public
     # user_leave:
     # print a leave message (for a user with user_id) to other users(talk_to here) and server.
-    def user_leave(user_id, talk_to):
+    def user_leave(user_id):
 
         # Group chat here
-        if talk_to == server_data_container.group_chat:
+        # if talk_to == server_data_container.group_chat:
 
             # for user in server_data_container.user_list:
 
@@ -71,33 +77,33 @@ with SimpleXMLRPCServer(('localhost', 8000),
             #         server_data_container.user_list.remove(user)
             #         _display_remaining_user()
             #         break
-            pass
+            # pass
 
         # individual chat here:
-        else:
+        # else:
+        message = ""
+        for user in server_data_container.user_list:
+        # find user in userlist
 
-            for user in server_data_container.user_list:
-            # find user in userlist
+            if user['user_id'] == user_id:
 
-                if user['user_id'] == user_id:
-                    
-                    message = user['user_name'] + ' left.'
+                message = user['user_name'] + ' left.'
 
-                    server_data_container.user_list.remove(user)
-                            
-                    _display_remaining_user()
+                server_data_container.user_list.remove(user)
 
-                    break
+                _display_remaining_user()
 
-            message = _format_leave_message(message)
+                break
 
-            print(message)
+        message = _format_leave_message(message)
 
-            # inform other individual that I left chat room.
-            for user in server_data_container.user_list:
-                if user['user_id'] == talk_to:
-                    user['message_queue'].put(message)
-                    break
+        print(message)
+
+        # inform other individual that I left chat room.
+        # for user in server_data_container.user_list:
+        #     if user['user_id'] == talk_to:
+        #         user['message_queue'].put(message)
+        #         break
 
 
     # Score : public
@@ -181,6 +187,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
     server.register_function(display_message, 'display_message')
     server.register_function(display_user_in_server, 'display_user_in_server')
     server.register_function(get_online_users, 'get_online_users')
+    server.register_function(get_username_by_id, 'get_username_by_id')
 
     # Score : private 
     # _format_user_message

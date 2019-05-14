@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
+from PyQt5.QtWidgets import QApplication, QDialog
 
 import sys
 
 from model import Model
 from controller import ChatController, LoginController
-from view import LoginView, MainView
+from view import LoginView, MainView, MainWindow
 
 
 def start_main():
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     model = Model()
     # Initialize Login Page
     dialog = QDialog()
-    MainWindow = QMainWindow()
+    MainWindow = MainWindow()
     login_page = LoginView(dialog)
     login_controller = LoginController(login_page, model)
     dialog.show()
@@ -29,4 +29,5 @@ if __name__ == '__main__':
     # Initialize MainWindow
     main_ui = MainView(MainWindow)
     chat_controller = ChatController(main_ui, model, None)
+    MainWindow.setController(chat_controller)
     sys.exit(app.exec_())

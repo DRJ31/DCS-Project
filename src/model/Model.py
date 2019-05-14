@@ -34,7 +34,6 @@ class Model:
             'avatar': avatar
         })
         self.messages[int(user_id)] = []
-        print(self.contacts)
 
     def delete_contact(self, user_id):
         del self.messages[int(user_id)]

@@ -15,7 +15,6 @@ class MessageListener(threading.Thread):
         super(MessageListener, self).__init__()
         self.controller = controller
         self.user_id = user_id
-        self.__flag = True
         self.__running = True
 
     def terminate(self):
@@ -23,18 +22,12 @@ class MessageListener(threading.Thread):
 
     def run(self):
         while self.__running:
-            if not self.__flag:
-                print("Paused")
-                time.sleep(1)
-                continue
-            time.sleep(3)
+            # time.sleep(1)
+            message_queue = self.controller.model.message_queue
             self.controller.update_messages(self.user_id)
-
-    def pause(self):
-        self.__flag = False
-
-    def resume(self):
-        self.__flag = True
+            while not message_queue.empty():
+                msg = message_queue.get()
+                self.controller.server.send_message(msg['sender'], msg['content'], msg['receiver'])
 
 
 class ChatController:
@@ -45,16 +38,12 @@ class ChatController:
         self.server = server
         self.msg_listener = None
 
-    @staticmethod
-    def get_username(text):
-        return text.split('\n')[0]
-
     def init_view(self):
         self.init_contacts()
         self.view.sendButton.setDisabled(True)
         self.setup_view_action()
-        # self.msg_listener = MessageListener(self, self.model.myself['user_id'])
-        # self.msg_listener.start()
+        self.msg_listener = MessageListener(self, self.model.myself['user_id'])
+        self.msg_listener.start()
 
     def init_contacts(self):
         for contact in self.model.contacts:
@@ -86,7 +75,7 @@ class ChatController:
     def delete_contact(self):  # Action when delete button pressed
         items = self.view.contactList.selectedItems()
         for item in items:
-            username = self.get_username(item.text())
+            username = item.text()
             user_id = self.model.get_user_id_by_name(username)
             if username != self.model.myself['username']:
                 result = QMessageBox.warning(QMessageBox(), 'Are you sure?',
@@ -98,19 +87,15 @@ class ChatController:
                     self.model.delete_contact(user_id)
 
     def change_contact(self, item):  # Action when click corresponding user
-        username = self.get_username(item.text())
+        username = item.text()
         user_id = self.model.get_user_id_by_name(username)
         self.view.sendButton.setDisabled(False)
         self.view.conversationList.clear()
         self.get_messages(user_id)
         self.model.change_contact(user_id)
-        self.update_messages(self.model.myself['user_id'])
 
     def update_messages(self, user_id):
-        # messages = self.stop_and_display_message(user_id)
         messages = self.server.display_message(user_id)
-        # self.msg_listener.resume()
-        print("Msg:", messages)
         myself = self.model.myself
         for message in messages:
             current_user = self.model.current_user
@@ -119,7 +104,8 @@ class ChatController:
             else:
                 user_id = message['sender']
             try:
-                self.model.messages[user_id].append(message)
+                if message['sender'] != message['receiver']:
+                    self.model.messages[user_id].append(message)
             except:
                 if user_id == myself['user_id']:
                     return
@@ -154,9 +140,6 @@ class ChatController:
     def send_message(self):
         content = self.view.textEdit.toPlainText()
         myself = self.model.myself
-        if self.model.current_user['user_id'] != myself['user_id']:
-            # self.stop_and_send_message(myself['user_id'], content, self.model.current_user['user_id'])
-            self.server.send_message(myself['user_id'], content, self.model.current_user['user_id'])
         self.model.send_message(content)
         item = QListWidgetItem(QIcon('../assets/avatar/%s' % myself['avatar']), content)
         self.view.conversationList.addItem(item)
@@ -168,16 +151,8 @@ class ChatController:
         controller_add = AddContactController(self, view, self.model)
         dialog.exec()
 
-    def stop_and_display_message(self, user_id):
-        self.msg_listener.pause()
-        message = self.server.display_message(user_id)
-        return message
-
-    def stop_and_send_message(self, sender, content, receiver):
-        self.msg_listener.pause()
-        self.server.send_message(sender, content, receiver)
-
     def stop_and_exit(self):
         self.msg_listener.terminate()
+        self.msg_listener.join()
         self.server.user_leave(self.model.myself['user_id'])
 

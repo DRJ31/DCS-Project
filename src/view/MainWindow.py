@@ -12,8 +12,8 @@ class MainWindow(QMainWindow):
                                      QMessageBox.Yes | QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            # self.controller.stop_and_exit()
-            self.controller.server.user_leave(self.controller.model.myself['user_id'])
+            self.controller.stop_and_exit()
+            # self.controller.server.user_leave(self.controller.model.myself['user_id'])
             event.accept()
         else:
             event.ignore()

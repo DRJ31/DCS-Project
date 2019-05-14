@@ -1,3 +1,6 @@
+import queue
+
+
 class Model:
 
     def __init__(self):
@@ -5,6 +8,7 @@ class Model:
         self.contacts = []  # All the contacts
         self.current_user = None  # Current user you are talking with
         self.myself = None
+        self.message_queue = queue.Queue()
 
     # Initialize functions
     def init_self(self, user_list):
@@ -17,12 +21,13 @@ class Model:
 
     # Model changes in GUI actions
     def send_message(self, content):
-        if self.myself['user_id'] != self.current_user['user_id']:
-            self.messages[self.current_user['user_id']].append({
-                'sender': self.myself['user_id'],
-                'receiver': self.current_user['user_id'],
-                'content': content
-            })
+        message = {
+            'sender': self.myself['user_id'],
+            'receiver': self.current_user['user_id'],
+            'content': content
+        }
+        self.messages[self.current_user['user_id']].append(message)
+        self.message_queue.put(message)
 
     def change_contact(self, user_id):
         self.current_user = self.get_user_by_id(user_id)

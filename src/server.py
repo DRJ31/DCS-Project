@@ -178,7 +178,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
                 user['user_name'],
                 'default.jpg'
             ))
-        user_list[-1].avatar = "KizunaAI.jpg"
+        user_list[-1].avatar = "Rika.jpg"
         return user_list
 
     server.register_function(user_leave, 'user_leave')    

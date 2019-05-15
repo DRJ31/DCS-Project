@@ -32,6 +32,7 @@ class RegisterController:
         result = server.user_register(view.usernameEdit.text(), view.passwordEdit.text(), img)
         if not result:
             QMessageBox.warning(QMessageBox(), 'Warning', 'The username has registered.', QMessageBox.Ok, QMessageBox.Ok)
+            return
         else:
             QMessageBox.information(QMessageBox(), 'Success', 'You have successfully registered.', QMessageBox.Ok, QMessageBox.Ok)
         view.parent.accept()

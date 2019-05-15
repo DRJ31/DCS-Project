@@ -55,7 +55,7 @@ class MainView(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Telegram"))
+        Form.setWindowTitle(_translate("Form", "DCS Chat"))
         self.newButton.setText(_translate("Form", "New"))
         self.deleteButton.setText(_translate("Form", "Delete"))
         self.sendButton.setText(_translate("Form", "Send"))

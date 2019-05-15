@@ -3,10 +3,10 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QSize
 
 import threading
-import time
 
 from .AddContactController import AddContactController
 from view import AddContactView
+from utils.AvatarTool import check_avatar
 
 
 class MessageListener(threading.Thread):
@@ -38,18 +38,63 @@ class ChatController:
         self.server = server
         self.msg_listener = None
 
-    def init_view(self):
-        self.init_contacts()
-        self.view.sendButton.setDisabled(True)
-        self.setup_view_action()
+    @staticmethod
+    def check_avatar_thread(username):
+        t = threading.Thread(target=check_avatar, args=(username, ))
+        t.start()
+        t.join()
+
+    def init_messages(self):
+        model = self.model
+        myself = model.myself
+        model.contacts.append({
+            'user_id': 0,
+            'username': 'world',
+            'avatar': 'Globe.jpg'
+        })
+        model.messages[0] = []
+        messages = self.server.get_history_messages(myself['user_id'])
+        for message in messages:
+            if message['sender'] == message['receiver']:
+                model.messages[myself['user_id']].append(message)
+            elif message['sender'] == myself['user_id']:
+                if not model.get_user_by_id(message['receiver']):
+                    username = self.server.get_username_by_id(message['receiver'])
+                    model.contacts.append({
+                        'user_id': message['receiver'],
+                        'username': username,
+                        'avatar': username + ".jpg"
+                    })
+                    model.messages[message['receiver']] = []
+                model.messages[message['receiver']].append(message)
+            elif message['receiver'] == myself['user_id']:
+                if not model.get_user_by_id(message['sender']):
+                    username = self.server.get_username_by_id(message['sender'])
+                    model.contacts.append({
+                        'user_id': message['sender'],
+                        'username': username,
+                        'avatar': username + ".jpg"
+                    })
+                    model.messages[message['sender']] = []
+                model.messages[message['sender']].append(message)
+
+    def start_thread(self):
         self.msg_listener = MessageListener(self, self.model.myself['user_id'])
         self.msg_listener.start()
 
+    def init_view(self):
+        self.init_messages()
+        self.init_contacts()
+        self.view.sendButton.setDisabled(True)
+        self.setup_view_action()
+        self.start_thread()
+
     def init_contacts(self):
         for contact in self.model.contacts:
+            if contact['username'] != 'world':
+                self.check_avatar_thread(contact['username'])
             item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']), contact['username'])
             self.view.contactList.addItem(item)
-            self.model.messages[contact['user_id']] = []
         self.view.contactList.setIconSize(QSize(25, 25))
 
     def setup_view_action(self):
@@ -70,7 +115,8 @@ class ChatController:
 
     def get_avatar(self):
         myself = self.model.myself
-        return QPixmap('../assets/avatar/%s' % myself['avatar']).scaled(40, 40)
+        self.check_avatar_thread(myself['username'])
+        return QPixmap('../assets/avatar/%s.jpg' % myself['username']).scaled(50, 50)
 
     def delete_contact(self):  # Action when delete button pressed
         items = self.view.contactList.selectedItems()
@@ -148,11 +194,14 @@ class ChatController:
     def add_contact(self):  # Pop out add contact window
         dialog = QDialog()
         view = AddContactView(dialog)
-        controller_add = AddContactController(self, view, self.model)
+        controller_add = AddContactController(self, view, self.model, self.server)
         dialog.exec()
 
-    def stop_and_exit(self):
+    def terminate_thread(self):
         self.msg_listener.terminate()
         self.msg_listener.join()
+
+    def stop_and_exit(self):
+        self.terminate_thread()
         self.server.user_leave(self.model.myself['user_id'])
 

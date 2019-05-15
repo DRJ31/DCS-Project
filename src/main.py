@@ -9,7 +9,7 @@ from view import LoginView, MainView, MainWindow
 
 def start_main():
     login_view = login_controller.view
-    if login_view.userNameEdit.text() and login_view.passwordEdit.text():
+    if login_view.userNameEdit.text() and login_view.passwordEdit.text() and login_controller.ready:
         chat_controller.server = login_controller.server
         chat_controller.init_view()
         chat_controller.init_user()

@@ -13,7 +13,8 @@ class Model:
     # Initialize functions
     def init_self(self, user_list):
         self.myself = user_list[-1]
-        self.contacts = user_list
+        self.messages[self.myself['user_id']] = []
+        self.contacts.append(self.myself)
 
     def init_messages(self):
         for contact in self.contacts:
@@ -51,6 +52,7 @@ class Model:
         for contact in self.contacts:
             if contact['user_id'] == user_id:
                 return contact
+        return False
 
     def get_user_id_by_name(self, username):
         for contact in self.contacts:

@@ -35,7 +35,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
     def regist_new_user(user_name, password):
         # Every user_id is unique
         db = MySQL()
-        result = db.select("SELECT * FROM User WHERE username=%s,password=%s", user_name, password)
+        result = db.select("SELECT * FROM User WHERE username=%s AND password=%s", user_name, password)
         if not result:
             return False
         user_id = result[0][0]
@@ -59,8 +59,12 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # get_username_by_id:
     # Get username by user_id.
     def get_username_by_id(user_id):
-        return server_data_container.user_list[user_id - 1]['user_name']
-    
+        db = MySQL()
+        result = db.select("SELECT * FROM User WHERE id=%s", int(user_id))
+        if not result:
+            return False
+        return result[0][1]
+
     # Score : public
     # user_leave:
     # print a leave message (for a user with user_id) to other users(talk_to here) and server.
@@ -112,11 +116,11 @@ with SimpleXMLRPCServer(('localhost', 8000),
             print('Individual chat', format_msg)
 
             for user in server_data_container.user_list:
-                if user['user_id'] == talk_to:
+                if user['user_id'] == talk_to and user_id != talk_to:
                     user['message_queue'].put(format_msg)
             db = MySQL()
-            db.modify("INSERT INTO Message (user_id, content, destination) VALUES (%d,%s,%d)",
-                      user_id, user_message, talk_to)
+            db.modify("INSERT INTO Message (user_id, content, destination) VALUES (%s,%s,%s)",
+                      int(user_id), user_message, int(talk_to))
 
     # Score : public
     # display_message:
@@ -135,10 +139,10 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # get_avatar:
     # get avatar binary
 
-    def get_avatar(user_id):
+    def get_avatar(username):
         db = MySQL()
-        result = db.select("SELECT * FROM User WHERE id=%d", user_id)
-        avatar = xmlrpc.client.Binary(result[3])
+        result = db.select("SELECT * FROM User WHERE username=%s", username)
+        avatar = xmlrpc.client.Binary(result[0][3])
         return avatar
 
     # Score: public
@@ -148,12 +152,12 @@ with SimpleXMLRPCServer(('localhost', 8000),
     def get_history_messages(user_id):
         messages = []
         db = MySQL()
-        results = db.select("SELECT * FROM Message WHERE user_id=%d OR destination=%d", user_id, user_id)
+        results = db.select("SELECT * FROM Message WHERE user_id=%s OR destination=%s", int(user_id), int(user_id))
         for result in results:
             messages.append(Message(
                 result[1],
-                result[2],
-                result[3]
+                result[3],
+                result[2]
             ))
         return messages
 
@@ -179,7 +183,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
         user_list = []
 
         db = MySQL()
-        results = db.select("SELECT * FROM User WHERE username LIKE %%%s%%", keyword)
+        results = db.select("SELECT * FROM User WHERE username LIKE %s", "%" + keyword + "%")
         for result in results:
             user_list.append(Contact(
                 result[0],
@@ -200,9 +204,8 @@ with SimpleXMLRPCServer(('localhost', 8000),
             user_list.append(Contact(
                 user['user_id'],
                 user['user_name'],
-                'default.jpg'
+                user['user_name'] + '.jpg'
             ))
-        user_list[-1].avatar = "Rika.jpg"
         return user_list
 
     # Score: public
@@ -216,8 +219,15 @@ with SimpleXMLRPCServer(('localhost', 8000),
             return False
         db.connect()
         db.modify("INSERT INTO User (username, password, avatar) VALUES (%s,%s,%s)", username, password, img.data)
-        print("Success")
         return True
+
+    # Score: public
+    # delete_history_records:
+    # delete all the history records between 2 users
+
+    def delete_history_records(user_id):
+        db = MySQL()
+        db.modify("DELETE FROM Message WHERE user_id=%s OR destination=%s", int(user_id), int(user_id))
 
     server.register_function(user_leave, 'user_leave')    
     server.register_function(regist_new_user, 'regist_new_user')
@@ -228,8 +238,9 @@ with SimpleXMLRPCServer(('localhost', 8000),
     server.register_function(get_username_by_id, 'get_username_by_id')
     server.register_function(user_register, 'user_register')
     server.register_function(get_avatar, 'get_avatar')
-    server.register_function(get_history_messages, 'get_history_message')
+    server.register_function(get_history_messages, 'get_history_messages')
     server.register_function(search_users, 'search_users')
+    server.register_function(delete_history_records, 'delete_history_records')
 
     # Score : private 
     # _format_user_message

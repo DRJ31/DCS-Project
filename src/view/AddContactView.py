@@ -12,6 +12,7 @@ from PyQt5 import QtCore, QtWidgets
 class AddContactView(object):
 
     def __init__(self, AddContactForm):
+        self.parent = AddContactForm
         self.searchEdit = QtWidgets.QLineEdit(AddContactForm)
         self.searchButton = QtWidgets.QPushButton(AddContactForm)
         self.listWidget = QtWidgets.QListWidget(AddContactForm)

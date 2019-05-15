@@ -1,0 +1,2 @@
+class FetchDataError(Exception):
+    pass

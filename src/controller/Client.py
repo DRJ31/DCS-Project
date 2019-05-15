@@ -1,4 +1,5 @@
 import xmlrpc.client
+from utils.Exceptions import FetchDataError
 
 
 class Client:
@@ -6,6 +7,8 @@ class Client:
         self.username = username
         self.server = xmlrpc.client.ServerProxy('http://localhost:8000')
         self.user_id = self.register()
+        if not self.user_id:
+            raise FetchDataError('Username or Password is invalid!')
         self.user_list = self.server.get_online_users()
 
     def register(self):

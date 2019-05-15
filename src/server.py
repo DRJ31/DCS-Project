@@ -2,7 +2,7 @@ from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 import queue
 
-from Database import MySQL
+from utils.Database import MySQL
 from model import Contact, Message
 # Restrict to a particular path.
 
@@ -31,9 +31,13 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # create a new user with name 'user_name', id number 'user_id', 
     # and store it into user_list.
 
-    def regist_new_user(user_name):
+    def regist_new_user(user_name, password):
         # Every user_id is unique
-        user_id = server_data_container.user_id
+        db = MySQL()
+        result = db.select("SELECT * FROM User WHERE username=%s,password=%s", user_name, password)
+        if not result:
+            return False
+        user_id = result[0][0]
 
         #Regist:
         info_container = {
@@ -44,8 +48,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
 
         #Add to user_list
         server_data_container.user_list.append(info_container)
-        server_data_container.user_id += 1
-        
+
         #For Debug
         print('New User : User id:', user_id, 'User Name:', user_name)
 
@@ -61,25 +64,6 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # user_leave:
     # print a leave message (for a user with user_id) to other users(talk_to here) and server.
     def user_leave(user_id):
-
-        # Group chat here
-        # if talk_to == server_data_container.group_chat:
-
-            # for user in server_data_container.user_list:
-
-            #     if user['user_id'] == user_id:
-            #         message = user['user_name'] + ' left group chat.'
-
-            #         print(message)
-
-            #         # Send message to other user
-            #         _inform_user_leave(user_id, message)
-
-            #         # User leave
-            #         server_data_container.user_list.remove(user)
-            #         _display_remaining_user()
-            #         break
-            # pass
 
         # individual chat here:
         # else:
@@ -98,15 +82,6 @@ with SimpleXMLRPCServer(('localhost', 8000),
                 break
 
         message = _format_leave_message(message)
-
-        print(message)
-
-        # inform other individual that I left chat room.
-        # for user in server_data_container.user_list:
-        #     if user['user_id'] == talk_to:
-        #         user['message_queue'].put(message)
-        #         break
-
 
     # Score : public
     # send_message: 

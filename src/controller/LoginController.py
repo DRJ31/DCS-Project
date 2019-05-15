@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from view import RegisterView
 from .RegisterController import RegisterController
 from .Client import Client
+from utils.Exceptions import FetchDataError
 
 
 class LoginController:
@@ -23,7 +24,11 @@ class LoginController:
         elif not password:
             QMessageBox.warning(QMessageBox(), 'Warning', 'Please input password', QMessageBox.Ok, QMessageBox.Ok)
             return
-        self.client = Client(username)
+        try:
+            self.client = Client(username)
+        except FetchDataError:
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Username or Password is invalid!', QMessageBox.Ok, QMessageBox.Ok)
+            return
         self.server = self.client.server
         self.model.init_self(self.client.user_list)
         self.view.parent.accept()

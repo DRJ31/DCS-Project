@@ -1,5 +1,6 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
+import xmlrpc.client
 import queue
 
 from utils.Database import MySQL
@@ -98,14 +99,13 @@ with SimpleXMLRPCServer(('localhost', 8000),
         format_msg = Message(user_id, talk_to, user_message)
 
         # Group chat here
-        if talk_to == server_data_container.group_chat:
+        if talk_to == 0:
         
             # print('Group chat', format_msg)
 
-            # for user in server_data_container.user_list:
-            #     if user['user_id'] != user_id:
-            #         user['message_queue'].put(format_msg)
-            pass
+            for user in server_data_container.user_list:
+                if user['user_id'] != user_id:
+                    user['message_queue'].put(format_msg)
             
         # Individual talk here
         else:
@@ -114,6 +114,9 @@ with SimpleXMLRPCServer(('localhost', 8000),
             for user in server_data_container.user_list:
                 if user['user_id'] == talk_to:
                     user['message_queue'].put(format_msg)
+            db = MySQL()
+            db.modify("INSERT INTO Message (user_id, content, destination) VALUES (%d,%s,%d)",
+                      user_id, user_message, talk_to)
 
     # Score : public
     # display_message:
@@ -128,6 +131,32 @@ with SimpleXMLRPCServer(('localhost', 8000),
                     message_list.append(user['message_queue'].get())
         return message_list
 
+    # Score: public
+    # get_avatar:
+    # get avatar binary
+
+    def get_avatar(user_id):
+        db = MySQL()
+        result = db.select("SELECT * FROM User WHERE id=%d", user_id)
+        avatar = xmlrpc.client.Binary(result[3])
+        return avatar
+
+    # Score: public
+    # get_history_messages:
+    # get history messages stored in database
+
+    def get_history_messages(user_id):
+        messages = []
+        db = MySQL()
+        results = db.select("SELECT * FROM Message WHERE user_id=%d OR destination=%d", user_id, user_id)
+        for result in results:
+            messages.append(Message(
+                result[1],
+                result[2],
+                result[3]
+            ))
+        return messages
+
     # Score : public
     # display_user_in_server:
     # display all user in the server.
@@ -141,6 +170,24 @@ with SimpleXMLRPCServer(('localhost', 8000),
             message = 'User: ' + user['user_name'] + ', User id: ' + str(user['user_id'])
             user_info_list.append(message)
         return user_info_list
+
+    # Score: public
+    # search_users:
+    # search for exist users
+
+    def search_users(keyword):
+        user_list = []
+
+        db = MySQL()
+        results = db.select("SELECT * FROM User WHERE username LIKE %%%s%%", keyword)
+        for result in results:
+            user_list.append(Contact(
+                result[0],
+                result[1],
+                result[1] + ".jpg"
+            ))
+
+        return user_list
 
     # Score: public
     # get_online_users:
@@ -180,6 +227,9 @@ with SimpleXMLRPCServer(('localhost', 8000),
     server.register_function(get_online_users, 'get_online_users')
     server.register_function(get_username_by_id, 'get_username_by_id')
     server.register_function(user_register, 'user_register')
+    server.register_function(get_avatar, 'get_avatar')
+    server.register_function(get_history_messages, 'get_history_message')
+    server.register_function(search_users, 'search_users')
 
     # Score : private 
     # _format_user_message

@@ -1,8 +1,6 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
-import xmlrpc.client
 import queue
-import pymysql
 
 from Database import MySQL
 from model import Contact, Message
@@ -190,19 +188,12 @@ with SimpleXMLRPCServer(('localhost', 8000),
     # save user into database
 
     def user_register(username, password, img):
-        with open('../assets/avatar/%s.jpg' % username, 'wb') as handle:
-            handle.write(img.data)
-            handle.close()
         db = MySQL()
-        result = db.select("SELECT * FROM User WHERE username='%s'" % username)
+        result = db.select("SELECT * FROM User WHERE username=%s", username)
         if result:
             return False
         db.connect()
-        fp = open('../assets/avatar/%s.jpg' % username, 'rb')
-        image = fp.read()
-        fp.close()
-        db.modify("INSERT INTO User (username, password, avatar) VALUES (%s,%s,%s)"
-                  % (username, password, image))
+        db.modify("INSERT INTO User (username, password, avatar) VALUES (%s,%s,%s)", username, password, img.data)
         print("Success")
         return True
 

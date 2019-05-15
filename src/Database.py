@@ -14,14 +14,15 @@ class MySQL:
         finally:
             self.db.close()
 
-    def select(self, query):
+    def select(self, query, *args):
         try:
             with self.db.cursor() as cursor:
-                cursor.execute(query)
+                print(query, args)
+                cursor.execute(query, args)
                 result = cursor.fetchall()
         finally:
             self.db.close()
-            return result
+            return ()
 
     def connect(self):
         self.db = pymysql.connect("120.77.38.66", "distributed", "20190501", "chat")

@@ -47,6 +47,10 @@ with SimpleXMLRPCServer(('localhost', 8000),
             'message_queue': queue.Queue()
         }
 
+        for user in server_data_container.user_list:
+            if user['user_id'] == info_container['user_id']:
+                server_data_container.user_list.remove(user)
+
         #Add to user_list
         server_data_container.user_list.append(info_container)
 
@@ -105,7 +109,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
         # Group chat here
         if talk_to == 0:
         
-            # print('Group chat', format_msg)
+            print('Group chat', format_msg)
 
             for user in server_data_container.user_list:
                 if user['user_id'] != user_id:

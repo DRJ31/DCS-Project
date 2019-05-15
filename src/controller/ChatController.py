@@ -145,7 +145,9 @@ class ChatController:
         myself = self.model.myself
         for message in messages:
             current_user = self.model.current_user
-            if myself['user_id'] == message['sender']:
+            if message['receiver'] == 0:
+                user_id = 0
+            elif myself['user_id'] == message['sender']:
                 user_id = message['receiver']
             else:
                 user_id = message['sender']
@@ -166,7 +168,11 @@ class ChatController:
                 self.model.messages[user_id] = [message]
 
             if current_user and user_id == current_user['user_id']:
-                item = QListWidgetItem(QIcon('../assets/avatar/%s' % current_user['avatar']), message['content'])
+                if user_id == 0:
+                    username = self.server.get_username_by_id(message['sender'])
+                    item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % username), message['content'])
+                else:
+                    item = QListWidgetItem(QIcon('../assets/avatar/%s' % current_user['avatar']), message['content'])
                 self.view.conversationList.addItem(item)
 
     def get_messages(self, user_id):  # Get messages of current user

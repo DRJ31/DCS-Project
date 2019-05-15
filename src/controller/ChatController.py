@@ -142,6 +142,7 @@ class ChatController:
         self.view.conversationList.clear()
         self.get_messages(user_id)
         self.model.change_contact(user_id)
+        self.view.conversationList.setCurrentRow(self.view.conversationList.count() - 1)
 
     def update_messages(self, user_id):
         messages = self.server.display_message(user_id)
@@ -178,6 +179,7 @@ class ChatController:
                 else:
                     item = QListWidgetItem(QIcon('../assets/avatar/%s' % current_user['avatar']), message['content'])
                 self.view.conversationList.addItem(item)
+                self.view.conversationList.setCurrentRow(self.view.conversationList.count() - 1)
 
     def get_messages(self, user_id):  # Get messages of current user
         # Init user information
@@ -215,6 +217,7 @@ class ChatController:
         item = QListWidgetItem(QIcon('../assets/avatar/%s' % myself['avatar']), content)
         self.view.conversationList.addItem(item)
         self.view.textEdit.clear()
+        self.view.conversationList.setCurrentRow(self.view.conversationList.count() - 1)
 
     def add_contact(self):  # Pop out add contact window
         dialog = QDialog()

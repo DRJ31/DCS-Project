@@ -1,3 +1,7 @@
+from PyQt5.QtWidgets import QDialog, QMessageBox
+
+from view import RegisterView
+from .RegisterController import RegisterController
 from .Client import Client
 
 
@@ -8,11 +12,24 @@ class LoginController:
         self.server = None
         self.client = None
         self.view.buttonBox.accepted.connect(self.login)
-        self.view.buttonBox.rejected.connect(self.view.parent.reject)
+        self.view.buttonBox.rejected.connect(self.register)
 
     def login(self):  # Action when click Login
         username = self.view.userNameEdit.text()
+        password = self.view.passwordEdit.text()
+        if not username:
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input username', QMessageBox.Ok, QMessageBox.Ok)
+            return
+        elif not password:
+            QMessageBox.warning(QMessageBox(), 'Warning', 'Please input password', QMessageBox.Ok, QMessageBox.Ok)
+            return
         self.client = Client(username)
         self.server = self.client.server
         self.model.init_self(self.client.user_list)
         self.view.parent.accept()
+
+    def register(self):
+        dialog = QDialog()
+        view = RegisterView(dialog)
+        register_controller = RegisterController(view)
+        dialog.exec()

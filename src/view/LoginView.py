@@ -20,10 +20,12 @@ class LoginView(object):
         # Setup buttonBox
         loginButton = QtWidgets.QPushButton(Dialog)
         loginButton.setText("Login")
+        registerButton = QtWidgets.QPushButton(Dialog)
+        registerButton.setText("Register")
         self.buttonBox.setGeometry(QtCore.QRect(30, 230, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel)
         self.buttonBox.addButton(loginButton, QtWidgets.QDialogButtonBox.AcceptRole)
+        self.buttonBox.addButton(registerButton, QtWidgets.QDialogButtonBox.RejectRole)
         self.buttonBox.setObjectName("buttonBox")
         # Setup layout
         self.formLayoutWidget.setGeometry(QtCore.QRect(9, 9, 381, 191))
@@ -35,6 +37,7 @@ class LoginView(object):
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout.setItem(3, QtWidgets.QFormLayout.FieldRole, spacerItem)
         self.passwordEdit.setObjectName("passwordEdit")
+        self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.passwordEdit)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formLayout.setItem(0, QtWidgets.QFormLayout.FieldRole, spacerItem1)

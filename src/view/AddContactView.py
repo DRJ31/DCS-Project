@@ -1,57 +1,42 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'add.ui'
+#
+# Created by: PyQt5 UI code generator 5.12.1
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtWidgets
 
 
 class AddContactView(object):
 
-    def __init__(self, Dialog):
-        super(AddContactView, self).__init__()
-        self.parent = Dialog
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
-        self.formLayoutWidget = QtWidgets.QWidget(Dialog)
-        self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
-        self.label = QtWidgets.QLabel(self.formLayoutWidget)
-        self.userIDEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
-        self.label_2 = QtWidgets.QLabel(self.formLayoutWidget)
-        self.usernameEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.formLayout.setItem(1, QtWidgets.QFormLayout.FieldRole, spacerItem)
-        self.setupUi(Dialog)
+    def __init__(self, AddContactForm):
+        self.searchEdit = QtWidgets.QLineEdit(AddContactForm)
+        self.searchButton = QtWidgets.QPushButton(AddContactForm)
+        self.listWidget = QtWidgets.QListWidget(AddContactForm)
+        self.pushButton = QtWidgets.QPushButton(AddContactForm)
+        self.setupUi(AddContactForm)
 
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(301, 208)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../assets/icon/telegram.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        Dialog.setWindowIcon(icon)
-        # Setup buttons
-        addButton = QtWidgets.QPushButton(Dialog)
-        addButton.setText("Save")
-        self.buttonBox.setGeometry(QtCore.QRect(-60, 160, 341, 32))
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel)
-        self.buttonBox.addButton(addButton, QtWidgets.QDialogButtonBox.AcceptRole)
-        self.buttonBox.setObjectName("buttonBox")
-        # Setup layout
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 30, 281, 91))
-        self.formLayoutWidget.setObjectName("formLayoutWidget")
-        self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.formLayout.setObjectName("formLayout")
-        self.label.setStyleSheet("font-weight: bold")
-        self.label.setObjectName("label")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label)
-        self.userIDEdit.setObjectName("userIDEdit")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.userIDEdit)
-        self.label_2.setStyleSheet("font-weight: bold")
-        self.label_2.setObjectName("label_2")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_2)
-        self.usernameEdit.setObjectName("usernameEdit")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.usernameEdit)
+    def setupUi(self, AddContactForm):
+        AddContactForm.setObjectName("AddContactForm")
+        AddContactForm.resize(559, 477)
+        self.searchEdit.setGeometry(QtCore.QRect(10, 30, 381, 31))
+        self.searchEdit.setObjectName("searchEdit")
+        self.searchButton.setGeometry(QtCore.QRect(400, 30, 75, 31))
+        self.searchButton.setObjectName("searchButton")
+        self.listWidget.setGeometry(QtCore.QRect(10, 70, 541, 401))
+        self.listWidget.setObjectName("listWidget")
+        self.pushButton.setGeometry(QtCore.QRect(480, 30, 75, 31))
+        self.pushButton.setObjectName("pushButton")
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi(AddContactForm)
+        QtCore.QMetaObject.connectSlotsByName(AddContactForm)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, AddContactForm):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Add Contact"))
-        self.label.setText(_translate("Dialog", "User ID:"))
-        self.label_2.setText(_translate("Dialog", "Username:"))
+        AddContactForm.setWindowTitle(_translate("AddContactForm", "Add Contact"))
+        self.searchButton.setText(_translate("AddContactForm", "Search"))
+        self.pushButton.setText(_translate("AddContactForm", "Add"))
+
+

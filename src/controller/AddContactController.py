@@ -7,8 +7,6 @@ class AddContactController:
         self.parent = parent
         self.view = view
         self.model = model
-        self.view.buttonBox.accepted.connect(self.save_info)
-        self.view.buttonBox.rejected.connect(self.view.parent.reject)
 
     def save_info(self):
         if not self.view.userIDEdit.text():

@@ -8,10 +8,12 @@ from view import LoginView, MainView, MainWindow
 
 
 def start_main():
-    chat_controller.server = login_controller.server
-    chat_controller.init_view()
-    chat_controller.init_user()
-    MainWindow.show()
+    login_view = login_controller.view
+    if login_view.userNameEdit.text() and login_view.passwordEdit.text():
+        chat_controller.server = login_controller.server
+        chat_controller.init_view()
+        chat_controller.init_user()
+        MainWindow.show()
 
 
 if __name__ == '__main__':

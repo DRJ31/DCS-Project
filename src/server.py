@@ -1,6 +1,10 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
+import xmlrpc.client
 import queue
+import pymysql
+
+from Database import MySQL
 from model import Contact, Message
 # Restrict to a particular path.
 
@@ -181,6 +185,27 @@ with SimpleXMLRPCServer(('localhost', 8000),
         user_list[-1].avatar = "Rika.jpg"
         return user_list
 
+    # Score: public
+    # user_register:
+    # save user into database
+
+    def user_register(username, password, img):
+        with open('../assets/avatar/%s.jpg' % username, 'wb') as handle:
+            handle.write(img.data)
+            handle.close()
+        db = MySQL()
+        result = db.select("SELECT * FROM User WHERE username='%s'" % username)
+        if result:
+            return False
+        db.connect()
+        fp = open('../assets/avatar/%s.jpg' % username, 'rb')
+        image = fp.read()
+        fp.close()
+        db.modify("INSERT INTO User (username, password, avatar) VALUES (%s,%s,%s)"
+                  % (username, password, image))
+        print("Success")
+        return True
+
     server.register_function(user_leave, 'user_leave')    
     server.register_function(regist_new_user, 'regist_new_user')
     server.register_function(send_message, 'send_message')
@@ -188,6 +213,7 @@ with SimpleXMLRPCServer(('localhost', 8000),
     server.register_function(display_user_in_server, 'display_user_in_server')
     server.register_function(get_online_users, 'get_online_users')
     server.register_function(get_username_by_id, 'get_username_by_id')
+    server.register_function(user_register, 'user_register')
 
     # Score : private 
     # _format_user_message

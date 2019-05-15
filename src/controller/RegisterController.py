@@ -28,7 +28,7 @@ class RegisterController:
             return
         with open(view.chooseButton.text(), 'rb') as f:
             img = xmlrpc.client.Binary(f.read())
-        server = xmlrpc.client.ServerProxy('http://localhost:8000')
+        server = xmlrpc.client.ServerProxy('http://120.77.38.66:8015')
         result = server.user_register(view.usernameEdit.text(), view.passwordEdit.text(), img)
         if not result:
             QMessageBox.warning(QMessageBox(), 'Warning', 'The username has registered.', QMessageBox.Ok, QMessageBox.Ok)

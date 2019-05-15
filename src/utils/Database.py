@@ -3,7 +3,7 @@ import pymysql
 
 class MySQL:
     def __init__(self):
-        self.db = pymysql.connect("120.77.38.66", "distributed", "20190501", "chat")
+        self.db = pymysql.connect("localhost", "distributed", "20190501", "chat")
 
     def modify(self, query, *args):
         try:
@@ -25,4 +25,4 @@ class MySQL:
             return result
 
     def connect(self):
-        self.db = pymysql.connect("120.77.38.66", "distributed", "20190501", "chat")
+        self.db = pymysql.connect("localhost", "distributed", "20190501", "chat")

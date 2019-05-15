@@ -20,7 +20,7 @@ class ServerDataContainer:
 
 
 # Create server
-with SimpleXMLRPCServer(('localhost', 8000),
+with SimpleXMLRPCServer(('0.0.0.0', 8015),
                         requestHandler=RequestHandler,
                         allow_none=True,
                         logRequests=False) as server:

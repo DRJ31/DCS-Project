@@ -72,7 +72,7 @@ quit_msg = 'quit'
 # Main Logic start here
 
 # Set server
-server = xmlrpc.client.ServerProxy('http://localhost:8000')
+server = xmlrpc.client.ServerProxy('http://120.77.38.66:8015')
 
 # regist self as a new user
 user_id, user_name = regist()

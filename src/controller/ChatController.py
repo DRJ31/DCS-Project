@@ -131,6 +131,9 @@ class ChatController:
                     self.view.contactList.takeItem(self.view.contactList.row(item))
                     self.change_contact(self.view.contactList.selectedItems()[0])
                     self.model.delete_contact(user_id)
+                    self.terminate_thread()
+                    self.server.delete_history_records(user_id)
+                    self.start_thread()
 
     def change_contact(self, item):  # Action when click corresponding user
         username = item.text()
@@ -157,10 +160,11 @@ class ChatController:
             except:
                 if user_id == myself['user_id']:
                     return
+                new_username = self.server.get_username_by_id(user_id)
                 contact = {
                     'user_id': user_id,
-                    'username': self.server.get_username_by_id(user_id),
-                    'avatar': 'default.jpg'
+                    'username': new_username,
+                    'avatar': new_username + '.jpg'
                 }
                 self.model.contacts.append(contact)
                 item = QListWidgetItem(QIcon('../assets/avatar/%s' % contact['avatar']), contact['username'])
@@ -182,7 +186,22 @@ class ChatController:
 
         message_list = self.model.messages[int(user_id)]
         for message in message_list:
-            if message['sender'] == myself['user_id']:
+            if message['receiver'] == 0:
+                msg_sender = self.model.get_user_by_id(message['sender'])
+                if not msg_sender:
+                    self.terminate_thread()
+                    username = self.server.get_username_by_id(message['sender'])
+                    self.model.contacts.append({
+                        'user_id': message['sender'],
+                        'username': username,
+                        'avatar': username + ".jpg"
+                    })
+                    self.check_avatar_thread(username)
+                    self.start_thread()
+                else:
+                    username = msg_sender['username']
+                item = QListWidgetItem(QIcon('../assets/avatar/%s.jpg' % username), message['content'])
+            elif message['sender'] == myself['user_id']:
                 item = QListWidgetItem(QIcon('../assets/avatar/%s' % myself['avatar']), message['content'])
             else:
                 item = QListWidgetItem(QIcon('../assets/avatar/%s' % user['avatar']), message['content'])

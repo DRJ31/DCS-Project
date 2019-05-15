@@ -98,6 +98,7 @@ with SimpleXMLRPCServer(('0.0.0.0', 8015),
 
 
     def send_message(user_id, user_message, talk_to):
+        user_name = ""
         # Find user's name with user_id
         for user in server_data_container.user_list:
             if user['user_id'] == user_id:
@@ -110,7 +111,7 @@ with SimpleXMLRPCServer(('0.0.0.0', 8015),
         if talk_to == 0:
         
             print('Group chat', format_msg)
-
+            format_msg.content = "<%s>: %s" % (user_name, format_msg.content)
             for user in server_data_container.user_list:
                 if user['user_id'] != user_id:
                     user['message_queue'].put(format_msg)

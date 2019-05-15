@@ -35,8 +35,13 @@ class AddContactController:
         t.join()
         self.parent.start_thread()
         for result in self.results:
+            status = False
             if not self.parent.model.get_user_by_id(result['user_id']):
                 item = QListWidgetItem(str(result['user_id']) + " " + result['username'])
+                view.listWidget.addItem(item)
+                status = True
+            if not status:
+                item = QListWidgetItem("No result found or you have added all the users you search for.")
                 view.listWidget.addItem(item)
 
     def add_user(self):

@@ -2,6 +2,8 @@ from PyQt5.QtWidgets import QMessageBox
 
 import xmlrpc.client
 
+from utils.AvatarTool import transform_jpg
+
 
 class RegisterController:
 
@@ -26,7 +28,16 @@ class RegisterController:
         elif view.passwordEdit.text() != view.confirmEdit.text():
             QMessageBox.warning(QMessageBox(), 'Warning', 'The two passwords are not the same.', QMessageBox.Ok, QMessageBox.Ok)
             return
-        with open(view.chooseButton.text(), 'rb') as f:
+        file_info = view.chooseButton.text().rsplit(".", 1)
+        if file_info[1] != 'jpg':
+            status = transform_jpg(view.chooseButton.text())
+            if not status:
+                QMessageBox.warning(QMessageBox(), 'Warning', 'Image transform failed!', QMessageBox.Ok, QMessageBox.Ok)
+                return
+            filename = file_info[0] + ".jpg"
+        else:
+            filename = view.chooseButton.text()
+        with open(filename, 'rb') as f:
             img = xmlrpc.client.Binary(f.read())
         server = xmlrpc.client.ServerProxy('http://120.77.38.66:8015')
         result = server.user_register(view.usernameEdit.text(), view.passwordEdit.text(), img)

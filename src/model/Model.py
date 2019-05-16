@@ -45,7 +45,7 @@ class Model:
         del self.messages[int(user_id)]
         for contact in self.contacts:
             if contact['user_id'] == user_id:
-                del contact
+                self.contacts.remove(contact)
 
     # Get information from model
     def get_user_by_id(self, user_id):

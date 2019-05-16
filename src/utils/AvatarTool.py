@@ -3,6 +3,7 @@ from PIL import Image
 from os import path
 import os
 
+
 def check_avatar(username):
     status = path.exists('../assets/avatar/%s.jpg' % username)
     if not status:

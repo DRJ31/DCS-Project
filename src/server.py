@@ -1,11 +1,16 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
+from socketserver import ThreadingMixIn
 import xmlrpc.client
 import queue
 
 from utils.Database import MySQL
 from model import Contact, Message
 # Restrict to a particular path.
+
+
+class ThreadXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
+    pass
 
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
@@ -20,7 +25,7 @@ class ServerDataContainer:
 
 
 # Create server
-with SimpleXMLRPCServer(('0.0.0.0', 8015),
+with ThreadXMLRPCServer(('0.0.0.0', 8015),
                         requestHandler=RequestHandler,
                         allow_none=True,
                         logRequests=False) as server:

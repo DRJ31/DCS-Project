@@ -3,6 +3,7 @@ from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QSize
 
 import threading
+import time
 
 from .AddContactController import AddContactController
 from view import AddContactView
@@ -22,7 +23,7 @@ class MessageListener(threading.Thread):
 
     def run(self):
         while self.__running:
-            # time.sleep(1)
+            time.sleep(1)
             message_queue = self.controller.model.message_queue
             self.controller.update_messages(self.user_id)
             while not message_queue.empty():
